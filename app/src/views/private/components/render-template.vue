@@ -52,7 +52,13 @@ function handleArray(fieldKeyBefore: string, fieldKeyAfter: string) {
 	let field: Field | null = props.fields?.find((field) => field.field === fieldKeyBefore) ?? null;
 
 	if (props.collection) {
-		field = fieldsStore.getField(props.collection, fieldKeyBefore);
+		const compositeField = fieldsStore.getField(props.collection, `${fieldKeyBefore}.${fieldKeyAfter}`);
+
+		if (compositeField && compositeField.meta?.display) {
+			field = compositeField;
+		} else {
+			field = fieldsStore.getField(props.collection, fieldKeyBefore);
+		}
 	}
 
 	if (value === undefined) return null;
