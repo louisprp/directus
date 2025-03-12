@@ -48,16 +48,23 @@ const parts = computed(() =>
 
 function handleArray(fieldKeyBefore: string, fieldKeyAfter: string) {
 	const value = get(props.item, fieldKeyBefore);
-
 	let field: Field | null = props.fields?.find((field) => field.field === fieldKeyBefore) ?? null;
 
 	if (props.collection) {
 		const compositeField = fieldsStore.getField(props.collection, `${fieldKeyBefore}.${fieldKeyAfter}`);
+		const baseField = fieldsStore.getField(props.collection, fieldKeyBefore);
 
-		if (compositeField && compositeField.meta?.display) {
-			field = compositeField;
-		} else {
-			field = fieldsStore.getField(props.collection, fieldKeyBefore);
+		field = baseField;
+
+		if (compositeField) {
+			const displayInfo = useExtension(
+				'display',
+				computed(() => compositeField?.meta?.display ?? null),
+			);
+
+			if (displayInfo.value?.localFields) {
+				field = compositeField;
+			}
 		}
 	}
 
